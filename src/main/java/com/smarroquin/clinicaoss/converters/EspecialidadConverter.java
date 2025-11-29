@@ -10,7 +10,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+@Named("especialidadConverter")
 @FacesConverter(value = "especialidadConverter", managed = true)
 @ApplicationScoped
 public class EspecialidadConverter implements Converter<Especialidad> {

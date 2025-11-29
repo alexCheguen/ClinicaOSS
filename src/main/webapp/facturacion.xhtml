@@ -8,22 +8,19 @@
     <ui:define name="content">
 
         <style>
-            /* Ajustes generales */
             body .ui-widget { font-size: 13px !important; }
             body .ui-button { font-size: 13px !important; padding: 0.3rem 0.8rem; }
-            .field-label { font-weight: bold; color: #495057; }
-
-            /* Estilo para facturas anuladas (tachadas y rojas) */
             .fila-anulada {
                 background-color: #fff5f5 !important;
                 color: #c00 !important;
                 text-decoration: line-through;
             }
+            .field-label { font-weight: bold; color: #495057; }
 
-            /* CLASE CLAVE: Scroll para pantallas pequeñas/laptops */
+            /* Scroll para laptops */
             .scroll-content {
-                max-height: 65vh; /* Máximo 65% de la altura de la pantalla */
-                overflow-y: auto; /* Barra lateral si es necesario */
+                max-height: 65vh;
+                overflow-y: auto;
                 padding-right: 10px;
                 overflow-x: hidden;
             }
@@ -88,7 +85,6 @@
                     </p:column>
 
                     <p:column headerText="Acciones" width="140" style="text-align: center;">
-
                         <p:commandButton icon="pi pi-eye"
                                          action="#{facturacionBean.setSelected(f)}"
                                          update=":dialogoDetalle"
@@ -153,6 +149,8 @@
                             <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                             <f:selectItems value="#{facturacionBean.tratamientos}" var="t"
                                            itemLabel="#{t.nombreTratamiento} - Q#{t.costo}" itemValue="#{t}"/>
+
+                            <p:ajax listener="#{facturacionBean.onTratamientoSelect}" update="subtotal total" />
                         </p:selectOneMenu>
 
                         <p:outputLabel value="Cita Relacionada:" for="cita"/>
@@ -161,35 +159,46 @@
                                          converter="#{citaConverter}">
                             <f:selectItem itemLabel="Seleccione Código..." itemValue="#{null}" noSelectionOption="true"/>
                             <f:selectItems value="#{facturacionBean.citas}" var="c"
-                                           itemLabel="#{c.codigo}" itemValue="#{c}"/>
+                                           itemLabel="#{c.codigo} - #{c.paciente.nombrePaciente} #{c.paciente.apellidoPaciente}"
+                                           itemValue="#{c}"/>
                         </p:selectOneMenu>
 
                         <p:outputLabel value="Subtotal:" for="subtotal"/>
-                        <p:inputNumber id="subtotal" value="#{facturacionBean.selected.subtotal}"
-                                       symbol="Q " symbolPosition="p" decimalPlaces="2" required="true"/>
+                        <h:panelGroup>
+                            <p:inputNumber id="subtotal" value="#{facturacionBean.selected.subtotal}"
+                                           symbol="Q " symbolPosition="p" decimalPlaces="2" required="true">
+                                <p:ajax event="change" listener="#{facturacionBean.calcularTotal}" update="total" />
+                            </p:inputNumber>
+                            <small style="display:block; color:#888; margin-top:2px;">
+                                * Costo base del tratamiento (editable para cargos extra).
+                            </small>
+                        </h:panelGroup>
 
                         <p:outputLabel value="Descuento:" for="descuento"/>
                         <p:selectOneMenu id="descuento" value="#{facturacionBean.selected.descuento}"
                                          converter="#{descuentoConverter}">
-                            <f:selectItem itemLabel="Ninguno" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="Ninguno (0%)" itemValue="#{null}" noSelectionOption="true"/>
                             <f:selectItems value="#{facturacionBean.descuentos}" var="d"
-                                           itemLabel="#{d.nombrePromocion}" itemValue="#{d}"/>
+                                           itemLabel="#{d.nombrePromocion} (#{d.descuentoPromocion}%)" itemValue="#{d}"/>
+
+                            <p:ajax listener="#{facturacionBean.calcularTotal}" update="total" />
                         </p:selectOneMenu>
 
                         <p:outputLabel value="Seguro:" for="seguro"/>
                         <p:selectOneMenu id="seguro" value="#{facturacionBean.selected.seguro}"
                                          converter="#{seguroConverter}">
-                            <f:selectItem itemLabel="Ninguno" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="Ninguno (0%)" itemValue="#{null}" noSelectionOption="true"/>
                             <f:selectItems value="#{facturacionBean.seguros}" var="s"
-                                           itemLabel="#{s.nombreAseguradora}" itemValue="#{s}"/>
+                                           itemLabel="#{s.nombreAseguradora} (#{s.porcentajeDescuento}%)" itemValue="#{s}"/>
+
+                            <p:ajax listener="#{facturacionBean.calcularTotal}" update="total" />
                         </p:selectOneMenu>
 
                         <p:outputLabel value="TOTAL A PAGAR:" for="total" style="font-weight:900;"/>
                         <p:inputNumber id="total" value="#{facturacionBean.selected.total}"
                                        symbol="Q " symbolPosition="p" decimalPlaces="2" required="true"
-                                       inputStyle="font-weight:bold; color:#28a745;"/>
-
-                        <p:outputLabel value="Estado del Pago:" for="estado"/>
+                                       inputStyle="font-weight:bold; color:#28a745; font-size: 1.2em;"
+                                       readonly="true"/> <p:outputLabel value="Estado del Pago:" for="estado"/>
                         <p:selectOneMenu id="estado" value="#{facturacionBean.selected.estado_pago}" required="true">
                             <f:selectItems value="#{facturacionBean.estadosPago}" var="ep" itemLabel="#{ep}" itemValue="#{ep}"/>
                         </p:selectOneMenu>
@@ -281,9 +290,7 @@
 
                 <div style="text-align: right;">
                     <p:commandButton value="Cerrar" icon="pi pi-times"
-                                     onclick="PF('wDetalle').hide()"
-                                     styleClass="ui-button-secondary ui-button-flat"
-                                     type="button"/>
+                                     onclick="PF('wDetalle').hide()" styleClass="ui-button-secondary ui-button-flat"/>
                 </div>
             </h:form>
         </p:dialog>

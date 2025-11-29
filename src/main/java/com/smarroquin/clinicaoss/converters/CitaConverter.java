@@ -8,7 +8,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+@Named("citaConverter")
 @FacesConverter(value = "citaConverter", managed = true)
 @ApplicationScoped
 public class CitaConverter implements Converter<Cita> {
@@ -22,8 +24,7 @@ public class CitaConverter implements Converter<Cita> {
             return null;
         }
         try {
-            Long id = Long.valueOf(value);
-            return repo.find(id);
+            return repo.find(Long.valueOf(value));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -31,7 +32,9 @@ public class CitaConverter implements Converter<Cita> {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Cita value) {
-        return (value == null || value.getId() == null) ? "" : value.getId().toString();
+        if (value == null || value.getId() == null) {
+            return "";
+        }
+        return value.getId().toString();
     }
 }
-

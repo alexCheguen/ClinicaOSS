@@ -42,6 +42,47 @@ public class FacturacionBean extends Bean<Facturacion> implements Serializable {
         return fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
+    public void onTratamientoSelect() {
+        if (selected.getTratamiento() != null) {
+            // Asigna el costo del tratamiento al subtotal
+            selected.setSubtotal(selected.getTratamiento().getCosto());
+        } else {
+            selected.setSubtotal(BigDecimal.ZERO);
+        }
+        // Recalcula el total final
+        calcularTotal();
+    }
+
+    public void calcularTotal() {
+        // Evitar nulos
+        BigDecimal sub = selected.getSubtotal() != null ? selected.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal descuentoMonto = BigDecimal.ZERO;
+        BigDecimal seguroMonto = BigDecimal.ZERO;
+
+        // Calcular Descuento (Si existe)
+        if (selected.getDescuento() != null && selected.getDescuento().getDescuentoPromocion() != null) {
+            BigDecimal porc = BigDecimal.valueOf(selected.getDescuento().getDescuentoPromocion());
+            // Formula: subtotal * (porcentaje / 100)
+            descuentoMonto = sub.multiply(porc).divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        }
+
+        // Calcular Seguro (Si existe)
+        if (selected.getSeguro() != null && selected.getSeguro().getPorcentajeDescuento() != null) {
+            BigDecimal porc = BigDecimal.valueOf(selected.getSeguro().getPorcentajeDescuento());
+            seguroMonto = sub.multiply(porc).divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        }
+
+        // Total = Subtotal - Descuento - Seguro
+        BigDecimal totalFinal = sub.subtract(descuentoMonto).subtract(seguroMonto);
+
+        // Evitar negativos
+        if (totalFinal.compareTo(BigDecimal.ZERO) < 0) {
+            totalFinal = BigDecimal.ZERO;
+        }
+
+        selected.setTotal(totalFinal);
+    }
+
     @Override
     protected List<Facturacion> findAll() {
         return service.facturaciones();

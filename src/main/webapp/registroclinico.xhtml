@@ -144,8 +144,8 @@
                         <p:outputLabel value="Cita Relacionada:" for="cita"/>
                         <p:selectOneMenu id="cita" value="#{registroClinicoBean.selected.cita}"
                                          filter="true" filterMatchMode="contains"
-                                         converter="#{citaConverter}">
-                            <f:selectItem itemLabel="Ninguna" itemValue="#{null}"/>
+                                         converter="#{citaConverter}"> <f:selectItem itemLabel="Ninguna" itemValue="#{null}" noSelectionOption="true"/>
+
                             <f:selectItems value="#{registroClinicoBean.citas}" var="c"
                                            itemLabel="#{c.codigo} - #{c.paciente.nombrePaciente}" itemValue="#{c}"/>
                         </p:selectOneMenu>

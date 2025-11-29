@@ -8,7 +8,10 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+
+@Named("tratamientoConverter")
 @FacesConverter(value = "tratamientoConverter", managed = true)
 @ApplicationScoped
 public class TratamientoConverter implements Converter<Tratamiento> {
@@ -22,8 +25,7 @@ public class TratamientoConverter implements Converter<Tratamiento> {
             return null;
         }
         try {
-            Long id = Long.valueOf(value);
-            return repo.find(id);
+            return repo.find(Long.valueOf(value));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -31,7 +33,9 @@ public class TratamientoConverter implements Converter<Tratamiento> {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Tratamiento value) {
-        return (value == null || value.getId() == null) ? "" : value.getId().toString();
+        if (value == null || value.getId() == null) {
+            return "";
+        }
+        return value.getId().toString();
     }
 }
-

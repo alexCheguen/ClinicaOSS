@@ -1,15 +1,18 @@
 package com.smarroquin.clinicaoss.converters;
 
 import com.smarroquin.clinicaoss.models.Usuario;
-import com.smarroquin.clinicaoss.repositories.*;
+import com.smarroquin.clinicaoss.repositories.UsuarioRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
-@FacesConverter(value = "userConverter", managed = true)
+
+@Named("userConverter")
+@FacesConverter(value = "userConverter", managed = true) // Ojo: en el xhtml se llama "userConverter"
 @ApplicationScoped
 public class UsuarioConverter implements Converter<Usuario> {
 
@@ -22,8 +25,7 @@ public class UsuarioConverter implements Converter<Usuario> {
             return null;
         }
         try {
-            Long id = Long.valueOf(value);
-            return repo.find(id);
+            return repo.find(Long.valueOf(value));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -31,6 +33,9 @@ public class UsuarioConverter implements Converter<Usuario> {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Usuario value) {
-        return (value == null || value.getId() == null) ? "" : value.getId().toString();
+        if (value == null || value.getId() == null) {
+            return "";
+        }
+        return value.getId().toString();
     }
 }
