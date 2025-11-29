@@ -7,9 +7,9 @@
 
 <!--        <properties>-->
 <!--            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>-->
-<!--            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5433/clinicaoss"/>-->
+<!--            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://uspgclinica.postgres.database.azure.com:5432/postgres"/>-->
 <!--            <property name="jakarta.persistence.jdbc.user" value="postgres"/>-->
-<!--            <property name="jakarta.persistence.jdbc.password" value="admin123"/>-->
+<!--            <property name="jakarta.persistence.jdbc.password" value="?final@Admin1"/>-->
 
 <!--            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>-->
 <!--            <property name="hibernate.hbm2ddl.auto" value="update"/>-->
